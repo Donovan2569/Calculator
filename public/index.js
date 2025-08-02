@@ -1,11 +1,15 @@
 import { buttonLocations } from "../constants/defaultvalues.js";
 
 let inputBar = document.querySelector(".input"); 
+let body = document.body;
+let modeLabel = document.getElementById("color-mode");
+
 
 let signs = ['+', '-', '/', '*', '%'];
+let keyBoardSigns = {"enter": "=", "backspace": "BACK", "+":"+", "=": "=", '-':'-', '/':'/', '*':'*', '%':'%', ".":"."};
 let userInput = ['0'];
 let firstClick = true;
-
+let solved  = false;
 
 
 function createButtons()
@@ -27,8 +31,16 @@ function createButtons()
 
 createButtons();
 
+function switchMode()
+{
+    body.classList.toggle("light-mode");
+    const isLight = body.classList.contains("light-mode");
+    modeLabel.textContent = isLight ? "Dark Mode" : "Light Mode";
+}
+
 function updateInputBar(inp)
 {    
+    solved = false;
     // Allow whole expretion deletion
     if (inp === "AC")
     {
@@ -193,6 +205,7 @@ function calculate() {
     userInput = [res.toString()];
 
     firstClick = true;
+    solved = true
 }
 
 function multiply(left, right)
@@ -211,6 +224,37 @@ function remainder(numerator, denominator)
     const result = numerator % denominator;
     return Number.isFinite(result) ? Math.abs(result) : "ERROR";
 }
+function copyAnswer() {
+    if (solved) {
+        navigator.clipboard.writeText(inputBar.innerHTML).then(() => {
+            showCopyMessage();
+        });
+    }
+}
+
+function showCopyMessage() {
+    const message = document.createElement("div");
+    message.textContent = "Copied!";
+    message.className = "copy-msg";
+    inputBar.parentElement.appendChild(message);
+
+    setTimeout(() => {
+        message.remove();
+    }, 1000);
+}
+
+
+// Allow for user keyboard interaction
+document.addEventListener('keydown', function(event) {
+    const isDigit = (char) => /^\d$/.test(char);
+    let key = event.key.toLowerCase();
+    if (key === "shift") return;
+    else if (isDigit(key)) return updateInputBar(key);
+    else if (key in keyBoardSigns) updateInputBar(keyBoardSigns[key]);
+
+});
 
 window.updateInputBar = updateInputBar;
 window.switchMode = switchMode;
+window.copyAnswer = copyAnswer;
+;

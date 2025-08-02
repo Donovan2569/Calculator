@@ -7,15 +7,16 @@
     <title>Calculator</title>
     </head>
     <body>
+        <script src="../constants/defaultvalues.js"></script>
         <script id="buttons-template" type="text/template">
             <button onclick="updateInputBar('{{value}}')">{{value}}</button>
         </script>
 
         <div class="calc">   
-            <div class="display"><span class="input">0</span></div>
-            <div class="buttons" id="buttons-container"></div>
+            <div class="display" onclick="copyAnswer()"><span class="input">0</span></div>
+            <div class="buttons" id="buttons-container" ></div>
+            <button class="color-button" onClick="switchMode()"><span id="color-mode">Light Mode</span></button>
         </div>    
-
         <script type="module" src="./index.js"></script>
     </body>
 </html>

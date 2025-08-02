@@ -1,5 +1,9 @@
 body{
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    user-select: none;
     background-color: #1F2022;
+    overflow: hidden;
 }
 
 .calc {
@@ -10,14 +14,24 @@ body{
 }
 
 .display {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     font-size: 3em;
     background-color: #59606E;
     border: 2px solid #ccc;
-    height: 100px;
+    height: 12vh;
     padding: 10px;
-    text-align: right;
-    line-height: 80px;
     box-sizing: border-box;
+    cursor: pointer;
+}
+
+.input {
+    display: inline-block;
+    text-align: right;
+    width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .buttons {
@@ -27,6 +41,7 @@ body{
 }
 
 button {
+    height: 12vh;
     font-size: 3em;
     padding: 20px;
     cursor: pointer;
@@ -38,4 +53,44 @@ button {
 
 button:hover {
     background-color: #ccc;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+body.light-mode {
+    background-color: #fafafa;
+    color: black;
+}
+
+.light-mode .display {
+    background-color: #e4e5f1;
+}
+
+.light-mode button {
+    background-color: #e4e5f1;
+    color: black;
+}
+
+.light-mode button:hover {
+    background-color: #9394a5;
+}
+
+.copy-msg {
+    position: absolute;
+    left: 50%;
+    top: 35px;
+    background-color: #333;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    opacity: 0.9;
+    z-index: 1000;
+    transform: translateX(-50%);
+}
+
+::-webkit-scrollbar {
+    display: none;
 }

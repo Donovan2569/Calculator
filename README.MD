@@ -14,15 +14,9 @@ A simple calculator web app built with **HTML**, **JavaScript**, and **CSS**. It
 3. View the calculated result instantly on the display.
 
 ## Installation
-
-If you have Python installed, no additional setup is required.  
-> 🔗 Download Python from [https://www.python.org/downloads/](https://www.python.org/downloads/) if you don’t already have it.
-
-Clone the repository and start a simple local server:
+No installation is necessary. Simply clone the repository and open the HTML file:
 
 ```bash
 git clone https://github.com/Donovan2569/Calculator.git
-cd calculator-project
-python -m http.server 8000
 ```
-Then open your browser and navigate to: [http://localhost:8000/public/index.html](http://localhost:8000/public/index.html)
+Then, navigate to the cloned folder and open index.html by double-clicking it.

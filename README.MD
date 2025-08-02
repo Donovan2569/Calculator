@@ -21,7 +21,7 @@ If you have Python installed, no additional setup is required.
 Clone the repository and start a simple local server:
 
 ```bash
-git clone https://github.com/yourusername/calculator-project.git
+git clone https://github.com/Donovan2569/Calculator.git
 cd calculator-project
 python -m http.server 8000
 ```

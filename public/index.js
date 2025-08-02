@@ -1,120 +1,154 @@
 import { buttonLocations } from "../constants/defaultvalues.js";
+
 let inputBar = document.querySelector(".input"); 
+
 let signs = ['+', '-', '/', '*', '%'];
 let userInput = ['0'];
 let firstClick = true;
 
+
+
 function createButtons()
 {
-    const buttonContainer = document.getElementById('buttons-container')
-    const template = document.getElementById('buttons-template').textContent
+    const buttonContainer = document.getElementById('buttons-container');
+    const template = document.getElementById('buttons-template').textContent;
 
     buttonLocations.forEach((obj) => {
         let html = template;
 
         Object.keys(obj).forEach((key) => {
-            const regex = new RegExp('{{value}}','g')
-            html = html.replace(regex, obj[key])
+            const regex = new RegExp(`{{${key}}}`,'g');
+            html = html.replace(regex, obj[key]);
         })
 
-        buttonContainer.innerHTML += html
+        buttonContainer.innerHTML += html;
     })
 }
-createButtons()
 
-function inputSelected(inp)
-{
-    let length = userInput.length;
+createButtons();
+
+function updateInputBar(inp)
+{    
+    // Allow whole expretion deletion
     if (inp === "AC")
     {
-        userInput = ['0'];
+        userInput = ["0"];
         firstClick = true;
+        inputBar.innerHTML = userInput.join(" ");
+        return;
     }
-    else if (inp === "BACK") {
-        let lastIndex = length - 1;
+    
+    // Allow single character deletion
+    if (inp === "BACK")
+    {
+        let lastIndex = userInput.length - 1;
         let last = userInput[lastIndex];
-        console.log(last)
-        if (last.includes("."))
+        // Handle negative numbers && ERROR
+        if((last.charAt(0) === "-" && last.length > 1) || last === "ERROR")
+        {
+            if (last.length > 2) userInput[lastIndex] = last.slice(0, -1);
+            else 
+            {
+                userInput[userInput.length - 1] = "0";
+                firstClick = true;
+            }
+        }
+
+        // Handle floating point numbers
+        else if (last.includes("."))
         {
             userInput[lastIndex] = last.slice(0, -1);
             if (userInput[lastIndex] === "0") firstClick = true;
         }
 
-        else if (last.length > 1) userInput[lastIndex] = last.slice(0, -1); 
+        // Handle numbers > 9
+        else if (last.length > 1) userInput[lastIndex] = last.slice(0, -1);
+        // Handle all other cases
         else 
         {
-            if (length > 1) {
-                userInput.pop();
-            } else {
+            if (userInput.length > 1) userInput.pop();
+            else 
+            {
                 userInput[0] = "0";
                 firstClick = true;
             }
-        }
+        }        
+        
+        inputBar.innerHTML = userInput.join(" ");
+        return;
     }
 
-    else if (inp === "+/-")
+    // Reverse signage
+    if (inp === "+/-" && userInput.length % 2 != 0)
     {
-        if (!signs.includes(userInput[length - 1]) && userInput[length - 1] != 0)
+        userInput[userInput.length - 1] = (parseFloat(userInput[userInput.length - 1]) * -1).toString();
+        inputBar.innerHTML = userInput.join(" ");
+        return;
+    }
+    
+    // Calculate completed expression (number op number)
+    if (inp === "=")
+    {
+        if (userInput.length % 2 != 0 && userInput.length > 1) calculate();
+        return;
+    }
+
+
+    if (!signs.includes(inp)) 
         {
-            userInput[length - 1] = parseFloat(userInput[length - 1]) * -1
-        }
-    }
-
-    else if (inp === "=")
-    {
-        if (length === 3) calculate();
-    }
-
-    else {
-        if (!signs.includes(inp)) {
-            let tempIndex = length - 1;
-            if (inp === '0' && (userInput[length - 1] === '0' || length === 2))
+            const last = userInput[userInput.length - 1]
+            if (inp === '0' && last === '0')
             {
                 firstClick = true;
-                return
+                return;
             }
 
-            else if (length === 2) 
+            if (userInput.length % 2 === 0) 
             {
-                if (inp === '.') userInput.push("0.");
-                else userInput.push(inp);
-                
+                userInput.push(inp === "." ? "0." : inp);                
                 firstClick = false;
             }
             
-            else if (firstClick) {
-                if (inp === ".") userInput[tempIndex] = "0.";
-                else userInput[tempIndex] = inp;
-                
+            else if (firstClick) 
+            {
+                userInput[userInput.length - 1] = inp === "." ? "0." : inp;
                 firstClick = false;
             }
 
-            
-            else {
-                if (inp === "." && userInput[tempIndex].includes(".")) return;
-
-                userInput[tempIndex] = userInput[tempIndex].toString() + inp.toString();
+            else 
+            {
+                if (inp === "." && last.includes(".")) return;
+                userInput[userInput.length - 1] += inp.toString();
             }
+            inputBar.innerHTML = userInput.join(" ");
+            return;
         }
 
-        else if (signs.includes(inp))
+    else
+    {
+        let last = userInput[userInput.length - 1];
+        if (userInput[0] === "ERROR") return;
+        if (signs.includes(last)) userInput[userInput.length - 1] = inp;
+        else 
         {
-            if (signs.includes(userInput[length - 1])) userInput[length - 1] = inp;
-            else userInput.push(inp);
-            
-            firstClick = true;
+            if (last.charAt(last.length - 1) === ".") userInput[userInput.length - 1] = last.toString() + '0';
+            userInput.push(inp);
         }
+        firstClick = true;
+            
+        inputBar.innerHTML = userInput.join(" ");
+        return;
     }
-    inputBar.innerHTML = userInput.join(" ");
 }
 
 function calculate() {
+    // Calculate multiplication, division, and remainder
     let i = 0;
-
-    // First pass: handle *, /, %
-    while (i < userInput.length) {
+    while (i < userInput.length) 
+    {
         const op = userInput[i];
-        if (op === "*" || op === "/" || op === "%") {
+        if (op === "*" || op === "/" || op === "%")
+        {
             const left = parseFloat(userInput[i - 1]);
             const right = parseFloat(userInput[i + 1]);
             let result;
@@ -122,53 +156,43 @@ function calculate() {
             if (op === "*") result = multiply(left, right);
             else if (op === "/") result = divide(left, right);
             else result = remainder(left, right);
-
-            if (result === "ERROR") {
-                inputBar.innerHTML = "ERROR";
-                userInput = ["0"];
+            if (result === "ERROR") 
+            {
+                userInput = ["ERROR"];
                 firstClick = true;
                 return;
             }
 
             userInput.splice(i - 1, 3, result.toString());
-            i = 0; // reset to start because the array has changed
-        } else {
-            i++;
-        }
+            i = 0; 
+        } 
+        else i++;
     }
 
-    // Second pass: handle +, -
+    // Calculate addition and subtraction
     i = 0;
-    while (i < userInput.length) {
+    while (i < userInput.length) 
+    {
         const op = userInput[i];
-        if (op === "+" || op === "-") {
+        if (op === "+" || op === "-") 
+        {
             const left = parseFloat(userInput[i - 1]);
             const right = parseFloat(userInput[i + 1]);
-            const result = op === "+" ? add(left, right) : sub(left, right);
+            const result = op === "+" ? left + right : left - right;
 
             userInput.splice(i - 1, 3, result.toString());
             i = 0;
-        } else {
-            i++;
-        }
+        } 
+        else  i++;
     }
 
     let res = parseFloat(userInput[0]);
-    res = parseFloat(res.toFixed(10));
+    res = Number.isInteger(res) ? res : parseFloat(res.toFixed(10));
+
     inputBar.innerHTML = res;
     userInput = [res.toString()];
+
     firstClick = true;
-}
-
-
-function add(left, right)
-{
-    return left + right;
-}
-
-function sub(left, right)
-{
-    return left - right;
 }
 
 function multiply(left, right)
@@ -176,17 +200,17 @@ function multiply(left, right)
     return left * right;
 }
 
-function divide(top, bottom)
+function divide(numerator, denominator)
 {
-    if (bottom === 0) return "ERROR"
-    return top / bottom
+    const result = numerator / denominator;
+    return Number.isFinite(result) ? result : "ERROR";
 }
 
-function remainder(top, bottom)
+function remainder(numerator, denominator)
 {
-    if (bottom === 0) return "ERROR";
-    return Math.abs(top % bottom);
+    const result = numerator % denominator;
+    return Number.isFinite(result) ? Math.abs(result) : "ERROR";
 }
 
-
-window.inputSelected = inputSelected;
+window.updateInputBar = updateInputBar;
+window.switchMode = switchMode;

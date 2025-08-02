@@ -1,5 +1,5 @@
 # Online Calculator
 
-
-- Need to fix formatting when using multiple operations
-    - 9 + 3 - 2
+- Add a color mode button
+    - Dark mode
+    - Light mode

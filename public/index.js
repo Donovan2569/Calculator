@@ -10,13 +10,11 @@ let inputBar = document.querySelector(".input");
 let body = document.body;
 let modeLabel = document.getElementById("color-mode");
 
-
 let signs = ['+', '-', '/', '*', '%'];
 let keyBoardSigns = {"enter": "=", "backspace": "BACK", "+":"+", "=": "=", '-':'-', '/':'/', '*':'*', '%':'%', ".":"."};
 let userInput = ['0'];
 let firstClick = true;
 let solved  = false;
-
 
 function createButtons()
 {
@@ -59,12 +57,18 @@ function updateInputBar(inp)
     // Allow single character deletion
     if (inp === "BACK")
     {
+        if (firstClick)
+        {
+            userInput = ["0"];
+            inputBar.innerHTML = userInput.join(" ");
+            return;
+        }
         let lastIndex = userInput.length - 1;
         let last = userInput[lastIndex];
         // Handle negative numbers && ERROR
-        if((last.charAt(0) === "-" && last.length > 1) || last === "ERROR")
+        if((last.charAt(0) === "-" && last != "-") || last === "ERROR")
         {
-            if (last.length > 2) userInput[lastIndex] = last.slice(0, -1);
+            if (last.length > 2 && last != "ERROR") userInput[lastIndex] = last.slice(0, -1);
             else 
             {
                 userInput[userInput.length - 1] = "0";
@@ -78,9 +82,9 @@ function updateInputBar(inp)
             userInput[lastIndex] = last.slice(0, -1);
             if (userInput[lastIndex] === "0") firstClick = true;
         }
-
         // Handle numbers > 9
         else if (last.length > 1) userInput[lastIndex] = last.slice(0, -1);
+
         // Handle all other cases
         else 
         {
@@ -97,8 +101,10 @@ function updateInputBar(inp)
     }
 
     // Reverse signage
-    if (inp === "+/-" && userInput.length % 2 != 0)
+    if (inp === "+/-")
     {
+        if (userInput.length % 2 === 0) return;
+        
         userInput[userInput.length - 1] = (parseFloat(userInput[userInput.length - 1]) * -1).toString();
         inputBar.innerHTML = userInput.join(" ");
         return;
@@ -115,6 +121,8 @@ function updateInputBar(inp)
     if (!signs.includes(inp)) 
         {
             const last = userInput[userInput.length - 1]
+            
+            if (last.length == 30) return; // Limit number size to 30 digits
             if (inp === '0' && last === '0')
             {
                 firstClick = true;
@@ -152,7 +160,7 @@ function updateInputBar(inp)
             if (last.charAt(last.length - 1) === ".") userInput[userInput.length - 1] = last.toString() + '0';
             userInput.push(inp);
         }
-        firstClick = true;
+        firstClick = false;
             
         inputBar.innerHTML = userInput.join(" ");
         return;
@@ -177,6 +185,7 @@ function calculate() {
             if (result === "ERROR") 
             {
                 userInput = ["ERROR"];
+                inputBar.innerHTML = result;
                 firstClick = true;
                 return;
             }
@@ -221,13 +230,14 @@ function multiply(left, right)
 
 function divide(numerator, denominator)
 {
-    const result = numerator / denominator;
+    const result = numerator / denominator;    
     return Number.isFinite(result) ? result : "ERROR";
 }
 
 function remainder(numerator, denominator)
 {
     const result = numerator % denominator;
+    
     return Number.isFinite(result) ? Math.abs(result) : "ERROR";
 }
 function copyAnswer() {
